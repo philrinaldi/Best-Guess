@@ -30,8 +30,8 @@ function getTodayIndex() {
 function prepareGame() {
   const index = getTodayIndex()
   const secret = words[index % words.length]
-  const withDist = words.map((w) => ({ word: w, dist: distance(w, secret) }))
-  const sorted = [...withDist].sort((a, b) => a.dist - b.dist)
+  const withScore = words.map((w) => ({ word: w, score: distance(w, secret) }))
+  const sorted = [...withScore].sort((a, b) => a.score - b.score)
   const ranks = new Map(sorted.map((w, i) => [w.word, i + 1]))
   return { secret, ranks, sorted }
 }
@@ -55,7 +55,11 @@ export default function App() {
     e.preventDefault()
     if (!input.trim() || state.status !== 'playing') return
     const word = input.trim().toLowerCase()
-    const rank = ranks.get(word) || ranks.size + 1
+    if (!ranks.has(word)) {
+      alert('Word not recognized. Please try again.')
+      return
+    }
+    const rank = ranks.get(word)
     const newGuesses = [...state.guesses, { word, rank }]
     const newStatus = word === secret ? 'won' : state.status
     setState({ ...state, guesses: newGuesses, status: newStatus })
